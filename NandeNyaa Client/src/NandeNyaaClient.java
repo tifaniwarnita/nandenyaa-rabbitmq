@@ -60,10 +60,10 @@ public class NandeNyaaClient {
         try {
             client = new NandeNyaaClient();
 
-            System.out.println(" [x] Send something");
-            JSONObject json = new JSONObject();
-            json.put("kucing", "terbang");
-            response = client.call(json.toJSONString());
+            System.out.println(" [x] Register username: kucing password: meong");
+            response = client.call(
+                    RequestBuilder.buildRegisterMessage("kucing", "meong")
+                            .toJSONString());
             System.out.println(" [.] Got response " + response);
         } catch (Exception e) {
             e.printStackTrace();
