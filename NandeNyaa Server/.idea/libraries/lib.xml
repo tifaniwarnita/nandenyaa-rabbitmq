@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../lib/rabbitmq-java-client-bin-3.6.5/commons-cli-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/rabbitmq-java-client-bin-3.6.5/commons-io-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/rabbitmq-java-client-bin-3.6.5/hamcrest-core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/rabbitmq-java-client-bin-3.6.5/junit.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/rabbitmq-java-client-bin-3.6.5/rabbitmq-client-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/rabbitmq-java-client-bin-3.6.5/rabbitmq-client.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/json-simple-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lib/sqlite-jdbc-3.14.2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
