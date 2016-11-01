@@ -52,7 +52,9 @@ public class NandeNyaaServer {
                     JSONObject request = (JSONObject) (new JSONParser())
                             .parse(new String(delivery.getBody(), "UTF-8"));
 
-                    System.out.println(" [.] Get message: " + request.toJSONString());
+                    System.out.println(" [.] Get message: "
+                            + String.valueOf(request.get(Constants.USERNAME) + " - "
+                            + String.valueOf(request.get(Constants.REQUEST_TYPE))));
                     response = processRequest(request);
                 } catch (Exception e) {
                     System.out.println(" [.] " + e.toString());
@@ -81,11 +83,13 @@ public class NandeNyaaServer {
     public JSONObject processRequest(JSONObject request) {
         JSONObject response = null;
         String type = String.valueOf(request.get(Constants.REQUEST_TYPE));
-        System.out.println(request.toJSONString());
-        System.out.println("Type: " + type);
         // Register
         if(type.equals(Constants.REGISTER)) {
             response = DatabaseHelper.register(
+                    String.valueOf(request.get(Constants.USERNAME)),
+                    String.valueOf(request.get(Constants.PASSWORD)));
+        } else if (type.equals(Constants.LOGIN)) {
+            response = DatabaseHelper.login(
                     String.valueOf(request.get(Constants.USERNAME)),
                     String.valueOf(request.get(Constants.PASSWORD)));
         }
@@ -95,5 +99,7 @@ public class NandeNyaaServer {
 
     public static void main(String[] argv) {
         NandeNyaaServer server = new NandeNyaaServer();
+//        DatabaseHelper.openConnection();
+//        DatabaseHelper.login("kucing", "meong");
     }
 }

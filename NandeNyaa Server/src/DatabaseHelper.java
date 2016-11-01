@@ -22,7 +22,7 @@ public class DatabaseHelper {
             Class.forName(JDBC_DRIVER);
 
             //STEP 3: Open a connection
-            System.out.println("Connecting to database...");
+            System.out.println(" [x] Connecting to database...");
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
         } catch(ClassNotFoundException | SQLException e) {
             e.printStackTrace();
@@ -59,7 +59,7 @@ public class DatabaseHelper {
 
     public static JSONObject register(String username, String password) {
         if (isUsernameExist(username)) {
-            System.out.println(" <DB> Register failed: username has already exist");
+            System.out.println("    {db} Register (failed): username has already exist");
             return ResponseBuilder.buildRegisterFailedMessage("Username has already exist");
         } else {
             try {
@@ -72,12 +72,41 @@ public class DatabaseHelper {
 
                 stmt.close();
 
-                System.out.println(" <DB> Register success: username " + username);
+                System.out.println("    {db} Register (success): username " + username);
                 return ResponseBuilder.buildRegisterSuccessMessage("User " + username + " has been succesfully registered");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println("    {db} Register (failed): unknown error");
         return ResponseBuilder.buildRegisterFailedMessage("Error occurred. Please try again.");
+    }
+
+    public static JSONObject login(String username, String password) {
+        boolean success = false;
+        try {
+            String sql = "SELECT username FROM user WHERE username = ? AND password = SHA(?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                success = true;
+            }
+            stmt.close();
+            rs.close();
+            if (success) {
+                System.out.println("    {db} Login (success): username " + username);
+                return ResponseBuilder.buildLoginSuccessMessage("Logged in");
+            } else {
+                System.out.println("    {db} Login (failed): Wrong username or password");
+                return ResponseBuilder.buildLoginFailedMessage("Wrong username or password");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("    {db} Login (failed): Unknown error");
+        return ResponseBuilder.buildLoginFailedMessage("Unknown error");
     }
 }

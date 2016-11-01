@@ -61,8 +61,11 @@ public class NandeNyaaClient {
             client = new NandeNyaaClient();
 
             System.out.println(" [x] Register username: kucing password: meong");
+//            response = client.call(
+//                    RequestBuilder.buildRegisterMessage("kucing", "meong")
+//                            .toJSONString());
             response = client.call(
-                    RequestBuilder.buildRegisterMessage("kucing", "meong")
+                    RequestBuilder.buildLoginMessage("kucing", "meong")
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
         } catch (Exception e) {
