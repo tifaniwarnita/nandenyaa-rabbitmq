@@ -1,3 +1,6 @@
 */.idea/
 *.class
 *.iml
+
+NandeNyaa Server/out/
+NandeNyaa Client/out/
