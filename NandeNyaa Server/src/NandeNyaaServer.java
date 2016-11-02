@@ -175,7 +175,8 @@ public class NandeNyaaServer {
                 response = DatabaseHelper.getGroups(username);
                 break;
             case Constants.GET_GROUP_MEMBERS:
-                //TODO: get group members
+                groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
+                response = DatabaseHelper.getGroupMembers(groupId);
                 break;
             default:
         }

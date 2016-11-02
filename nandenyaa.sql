@@ -53,7 +53,7 @@ CREATE TABLE `group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `group_name` varchar(30) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +62,7 @@ CREATE TABLE `group` (
 
 LOCK TABLES `group` WRITE;
 /*!40000 ALTER TABLE `group` DISABLE KEYS */;
-INSERT INTO `group` VALUES (1,'Pecinta Kucing');
+INSERT INTO `group` VALUES (1,'Pecinta Kucing'),(2,'Miaw'),(3,'Snowball Company'),(4,'Snowball Company'),(5,'Snowball Nyaw');
 /*!40000 ALTER TABLE `group` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -89,7 +89,7 @@ CREATE TABLE `group_admin` (
 
 LOCK TABLES `group_admin` WRITE;
 /*!40000 ALTER TABLE `group_admin` DISABLE KEYS */;
-INSERT INTO `group_admin` VALUES (1,'kucing');
+INSERT INTO `group_admin` VALUES (1,'kucing'),(2,'kucing'),(3,'kucing'),(4,'kucing');
 /*!40000 ALTER TABLE `group_admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -116,7 +116,7 @@ CREATE TABLE `group_member` (
 
 LOCK TABLES `group_member` WRITE;
 /*!40000 ALTER TABLE `group_member` DISABLE KEYS */;
-INSERT INTO `group_member` VALUES (1,'kucing'),(1,'tifani'),(1,'acel');
+INSERT INTO `group_member` VALUES (1,'kucing'),(1,'tifani'),(1,'acel'),(1,'kucing'),(1,'snowball'),(2,'kucing'),(2,'tifani'),(2,'acel'),(2,'snowball'),(5,'tifani');
 /*!40000 ALTER TABLE `group_member` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -153,4 +153,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-02 13:59:49
+-- Dump completed on 2016-11-02 16:43:42

@@ -360,7 +360,30 @@ public class DatabaseHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("    {db} get_friends failed: unknown error");
+        System.out.println("    {db} get_groups failed: unknown error");
         return ResponseBuilder.buildGetGroupsFailedMessage("Error occurred. Please try again.");
+    }
+
+    public static JSONObject getGroupMembers(int groupId) {
+        ArrayList<String> members = new ArrayList<>();
+        try {
+            String sql = "SELECT member FROM group_member WHERE group_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setInt(1, groupId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                members.add(rs.getString(1));
+            }
+            stmt.close();
+            rs.close();
+
+            System.out.println("    {db} get_group_members success: " + members.toString());
+            return ResponseBuilder.buildGetGroupMemberSuccessMessage(members, "");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("    {db} get_group_members failed: unknown error");
+        return ResponseBuilder.buildGetGroupMemberFailedMessage("Error occurred. Please try again.");
     }
 }

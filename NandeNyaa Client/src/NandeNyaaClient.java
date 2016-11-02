@@ -118,20 +118,36 @@ public class NandeNyaaClient {
 //                            .toJSONString());
 //            System.out.println(" [.] Got response " + response);
 
+//            response = client.call(
+//                    RequestBuilder.buildGetGroupsMessage("tifani")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+//
+//            response = client.call(
+//                    RequestBuilder.buildGetGroupsMessage("snowball")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+//
+//            response = client.call(
+//                    RequestBuilder.buildGetGroupsMessage("sdf")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+
             response = client.call(
-                    RequestBuilder.buildGetGroupsMessage("tifani")
+                    RequestBuilder.buildGetGroupMembersMessage(1)
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
 
             response = client.call(
-                    RequestBuilder.buildGetGroupsMessage("snowball")
+                    RequestBuilder.buildGetGroupMembersMessage(3)
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
 
             response = client.call(
-                    RequestBuilder.buildGetGroupsMessage("sdf")
+                    RequestBuilder.buildGetGroupMembersMessage(5)
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
