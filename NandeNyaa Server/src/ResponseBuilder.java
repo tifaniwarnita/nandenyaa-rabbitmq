@@ -65,7 +65,7 @@ public class ResponseBuilder {
         return message;
     }
 
-    public static JSONObject buildCreateGroupFriendFailedMessage(String info) {
+    public static JSONObject buildCreateGroupFailedMessage(String info) {
         JSONObject message = new JSONObject();
         message.put(Constants.RESPONSE_TYPE, Constants.CREATE_GROUP);
         message.put(Constants.STATUS, Constants.FAILED);

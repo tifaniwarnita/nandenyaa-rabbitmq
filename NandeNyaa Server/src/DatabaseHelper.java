@@ -200,7 +200,7 @@ public class DatabaseHelper {
             e.printStackTrace();
         }
         System.out.println("    {db} ADD FRIEND FAILED: Unknown error");
-        return ResponseBuilder.buildAddGroupMembersSuccessMessage("Error occurred. Please try again.");
+        return ResponseBuilder.buildAddGroupMembersFailedMessage("Error occurred. Please try again.");
     }
 
     public static JSONObject createGroup(String username, String groupName, ArrayList<String> members) {
@@ -239,6 +239,6 @@ public class DatabaseHelper {
             e.printStackTrace();
         }
         System.out.println("    {db} CREATE GROUP FAILED: Unknown error");
-        return ResponseBuilder.buildRegisterFailedMessage("Error occurred. Please try again.");
+        return ResponseBuilder.buildCreateGroupFailedMessage("Error occurred. Please try again.");
     }
 }
