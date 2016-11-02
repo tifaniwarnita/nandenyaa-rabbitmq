@@ -1,6 +1,7 @@
 import com.rabbitmq.client.*;
 import org.json.simple.JSONObject;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -60,16 +61,30 @@ public class NandeNyaaClient {
         try {
             client = new NandeNyaaClient();
 
-            System.out.println(" [x] Register username: kucing password: meong");
+//            System.out.println(" [x] Register username: kucing password: meong");
 //            response = client.call(
-//                    RequestBuilder.buildRegisterMessage("kucing", "meong")
+//                    RequestBuilder.buildRegisterMessage("quinsy", "quinsy")
 //                            .toJSONString());
 
 //            response = client.call(
 //                    RequestBuilder.buildLoginMessage("kucing", "meong")
 //                            .toJSONString());
+
+//            response = client.call(
+//                    RequestBuilder.buildAddFriendMessage("kucing", "acel")
+//                            .toJSONString());
+
+//            ArrayList members = new ArrayList();
+//            members.add("tifani");
+//            members.add("acel");
+//            response = client.call(
+//                    RequestBuilder.buildCreateGroupMessage("kucing", "Miaw", members)
+//                            .toJSONString());
+
+            ArrayList members = new ArrayList();
+            members.add("snowball");
             response = client.call(
-                    RequestBuilder.buildAddFriendMessage("kucing", "acel")
+                    RequestBuilder.buildAddGroupMembersMessage("kucing", 2, members)
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
         } catch (Exception e) {

@@ -38,6 +38,7 @@ CREATE TABLE `friend` (
 
 LOCK TABLES `friend` WRITE;
 /*!40000 ALTER TABLE `friend` DISABLE KEYS */;
+INSERT INTO `friend` VALUES ('tifani','kucing'),('kucing','acel');
 /*!40000 ALTER TABLE `friend` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -52,7 +53,7 @@ CREATE TABLE `group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `group_name` varchar(30) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,6 +62,7 @@ CREATE TABLE `group` (
 
 LOCK TABLES `group` WRITE;
 /*!40000 ALTER TABLE `group` DISABLE KEYS */;
+INSERT INTO `group` VALUES (1,'Pecinta Kucing');
 /*!40000 ALTER TABLE `group` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -87,6 +89,7 @@ CREATE TABLE `group_admin` (
 
 LOCK TABLES `group_admin` WRITE;
 /*!40000 ALTER TABLE `group_admin` DISABLE KEYS */;
+INSERT INTO `group_admin` VALUES (1,'kucing');
 /*!40000 ALTER TABLE `group_admin` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -113,6 +116,7 @@ CREATE TABLE `group_member` (
 
 LOCK TABLES `group_member` WRITE;
 /*!40000 ALTER TABLE `group_member` DISABLE KEYS */;
+INSERT INTO `group_member` VALUES (1,'kucing'),(1,'tifani'),(1,'acel');
 /*!40000 ALTER TABLE `group_member` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -136,6 +140,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES ('acel','da37fa8f8eea290792c281c3604ef3b5e0d15c12'),('kucing','9cafb1d6240635d5e435e0a60e738ced0334c109'),('quinsy','82481fcc363430086c840320230ac74c8bde3a3a'),('snowball','cbf41f5b461cea4e1e261d2918d5334bee8c6a06'),('tifani','0a3c80cc0410faaaedc0ed4ed9f35c9266e628ca');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -148,4 +153,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-02 10:11:38
+-- Dump completed on 2016-11-02 13:59:49

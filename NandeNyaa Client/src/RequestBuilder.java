@@ -36,7 +36,7 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildGroupMessage(String username, String groupId, String messageContent) {
+    public static JSONObject buildGroupMessage(String username, int groupId, String messageContent) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.GROUP_MESSAGE);
         message.put(Constants.USERNAME, username);
@@ -71,7 +71,7 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildAddGroupMembersMessage(String username, String groupId, ArrayList<String> newMembers) {
+    public static JSONObject buildAddGroupMembersMessage(String username, int groupId, ArrayList<String> newMembers) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.ADD_GROUP_MEMBERS);
         message.put(Constants.USERNAME, username);
@@ -85,7 +85,7 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildRemoveGroupMembersMessage(String username, String groupId, ArrayList<String> members) {
+    public static JSONObject buildRemoveGroupMembersMessage(String username, int groupId, ArrayList<String> members) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.REMOVE_GROUP_MEMBERS);
         message.put(Constants.USERNAME, username);
@@ -99,7 +99,7 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildExitGroupMessage(String username, String groupId) {
+    public static JSONObject buildExitGroupMessage(String username, int groupId) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.EXIT_GROUP);
         message.put(Constants.USERNAME, username);

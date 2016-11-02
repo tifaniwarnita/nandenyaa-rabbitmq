@@ -1,6 +1,7 @@
 import org.json.simple.JSONObject;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * Created by Tifani on 11/1/2016.
@@ -38,7 +39,7 @@ public class DatabaseHelper {
         }
     }
 
-    public static boolean isUsernameExist(String username) {
+    private static boolean isUsernameExist(String username) {
         boolean exist = false;
         try {
             String sql = "SELECT username FROM user WHERE username = ?";
@@ -57,7 +58,7 @@ public class DatabaseHelper {
         return exist;
     }
 
-    public static boolean isFriend(String user1, String user2) {
+    private static boolean isFriend(String user1, String user2) {
         boolean friend = false;
         try {
             String sql = "SELECT user1 " +
@@ -96,7 +97,7 @@ public class DatabaseHelper {
 
                 stmt.close();
 
-                System.out.println("    {db} REGISTER SUCCESS: Username " + username);
+                System.out.println("    {db} REGISTER SUCCESS: username " + username);
                 return ResponseBuilder.buildRegisterSuccessMessage("User " + username + " has been succesfully registered");
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -157,5 +158,87 @@ public class DatabaseHelper {
         }
         System.out.println("    {db} ADD FRIEND FAILED: Unknown error");
         return ResponseBuilder.buildAddFriendFailedMessage("Error occurred. Please try again.");
+    }
+
+    public static boolean addGroupAdmin(int groupId, String admin) {
+        try {
+            String  sql = "INSERT INTO group_admin (group_id, admin) VALUES (?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, groupId);
+            stmt.setString(2, admin);
+            stmt.executeUpdate();
+
+            stmt.close();
+            System.out.println("    {db} ADD GROUP ADMIN SUCCESS: id_group " + groupId + "; admin " + admin);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("    {db} ADD GROUP ADMIN FAILED: Unknown error");
+        return false;
+    }
+
+    public static JSONObject addGroupMembers(int groupId, String admin, ArrayList<String> members, boolean createGroup) {
+        try {
+            String sql = "INSERT INTO group_member (group_id, member ) VALUES (?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            if (createGroup) {
+                members.add(0, admin);
+            }
+
+            for(String member: members) {
+                stmt.setInt(1, groupId);
+                stmt.setString(2, member);
+                stmt.executeUpdate();
+                System.out.println("    {db} ADD GROUP MEMBER SUCCESS: group_id " + groupId + "; user " + member);
+            }
+            stmt.close();
+            System.out.println("    {db} ADD GROUP MEMBERS SUCCESS: All success");
+            return ResponseBuilder.buildAddGroupMembersSuccessMessage("User(s) has been added to group");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("    {db} ADD FRIEND FAILED: Unknown error");
+        return ResponseBuilder.buildAddGroupMembersSuccessMessage("Error occurred. Please try again.");
+    }
+
+    public static JSONObject createGroup(String username, String groupName, ArrayList<String> members) {
+        int id;
+        try {
+            conn.setAutoCommit(false);
+
+            String sql = "INSERT INTO `group` (group_name) VALUES (?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, groupName);
+            stmt.executeUpdate();
+
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()){
+                id = rs.getInt(1);
+                rs.close();
+                stmt.close();
+
+                addGroupAdmin(id, username);
+                addGroupMembers(id, username, members, true);
+
+                conn.commit();
+                conn.setAutoCommit(true);
+
+                System.out.println("    {db} CREATE GROUP SUCCESS: Group id " + id + "; group_name " + groupName);
+                return ResponseBuilder.buildCreateGroupSuccessMessage(id, "Group has been created");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            conn.rollback();
+            conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("    {db} CREATE GROUP FAILED: Unknown error");
+        return ResponseBuilder.buildRegisterFailedMessage("Error occurred. Please try again.");
     }
 }

@@ -55,6 +55,41 @@ public class ResponseBuilder {
         return message;
     }
 
+    // CREATE GROUP
+    public static JSONObject buildCreateGroupSuccessMessage(int groupId, String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.CREATE_GROUP);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        message.put(Constants.INFO, info);
+        message.put(Constants.GROUP_ID, groupId);
+        return message;
+    }
+
+    public static JSONObject buildCreateGroupFriendFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.CREATE_GROUP);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    // ADD GROUP MEMBER
+    public static JSONObject buildAddGroupMembersSuccessMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.ADD_GROUP_MEMBERS);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    public static JSONObject buildAddGroupMembersFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.ADD_GROUP_MEMBERS);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
     public static JSONObject buildUnknownErrorMessage(String info) {
         JSONObject message = new JSONObject();
         message.put(Constants.RESPONSE_TYPE, Constants.UNKNOWN);

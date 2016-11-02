@@ -1,6 +1,9 @@
 import com.rabbitmq.client.*;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import java.util.ArrayList;
 
 /**
  * Created by Tifani on 10/28/2016.
@@ -82,6 +85,8 @@ public class NandeNyaaServer {
 
     public JSONObject processRequest(JSONObject request) {
         JSONObject response = null;
+        JSONArray memberArrJson = null;
+        ArrayList<String> members = null;
         String type = String.valueOf(request.get(Constants.REQUEST_TYPE));
         // Register
         if(type.equals(Constants.REGISTER)) {
@@ -97,17 +102,34 @@ public class NandeNyaaServer {
                     String.valueOf(request.get(Constants.USERNAME)),
                     String.valueOf(request.get(Constants.USER_TO_ADD)));
         } else if (type.equals(Constants.CREATE_GROUP)) {
-            //TODO: create group, creator being the admin
+            memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
+            members = new ArrayList<>();
+            for(Object el : memberArrJson){
+                members.add(String.valueOf(el));
+            }
+            response = DatabaseHelper.createGroup(
+                    String.valueOf(request.get(Constants.USERNAME)),
+                    String.valueOf(request.get(Constants.GROUP_NAME)),
+                    members);
         } else if (type.equals(Constants.ADD_GROUP_MEMBERS)) {
-            //TODO: add group member
+            memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
+            members = new ArrayList<>();
+            for(Object el : memberArrJson){
+                members.add(String.valueOf(el));
+            }
+            response = DatabaseHelper.addGroupMembers(
+                    Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID))),
+                    String.valueOf(request.get(Constants.USERNAME)),
+                    members,
+                    false);
         } else if (type.equals(Constants.REMOVE_GROUP_MEMBERS)) {
-            //TODO: add group member
+            //TODO: remove group member
         } else if (type.equals(Constants.EXIT_GROUP)) {
-            //TODO: add group member, if admin, remove role from table admin
+            //TODO: leave group, if admin, remove role from table admin
         } else if (type.equals(Constants.PRIVATE_MESSAGE)) {
-            //TODO: add group member
+            //TODO: pm
         } else if (type.equals(Constants.GROUP_MESSAGE)) {
-            //TODO: add group member
+            //TODO: group msg
         }
 
         return response;
