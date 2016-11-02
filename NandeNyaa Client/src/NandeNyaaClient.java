@@ -93,10 +93,29 @@ public class NandeNyaaClient {
 //                    RequestBuilder.buildRemoveGroupMembersMessage("kucing", 5, members)
 //                            .toJSONString());
 
-            response = client.call(
-                    RequestBuilder.buildExitGroupMessage("kucing", 5)
-                            .toJSONString());
+//            response = client.call(
+//                    RequestBuilder.buildExitGroupMessage("kucing", 5)
+//                            .toJSONString());
 
+            response = client.call(
+                    RequestBuilder.buildGetFriendsMessage("kucing")
+                            .toJSONString());
+            System.out.println(" [.] Got response " + response);
+
+            response = client.call(
+                    RequestBuilder.buildGetFriendsMessage("tifani")
+                            .toJSONString());
+            System.out.println(" [.] Got response " + response);
+
+            response = client.call(
+                    RequestBuilder.buildGetFriendsMessage("acel")
+                            .toJSONString());
+            System.out.println(" [.] Got response " + response);
+
+
+            response = client.call(
+                    RequestBuilder.buildGetFriendsMessage("sdf")
+                            .toJSONString());
             System.out.println(" [.] Got response " + response);
         } catch (Exception e) {
             e.printStackTrace();

@@ -38,4 +38,7 @@ public class Constants {
     public static final String MEMBERS = "members";
     public static final String STATUS = "status";
     public static final String INFO = "info";
+    public static final String FRIENDS = "friends";
+    public static final String GROUPS = "groups";
+    public static final String GROUP_MEMBERS = "group_members";
 }

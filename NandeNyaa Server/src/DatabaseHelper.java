@@ -230,12 +230,12 @@ public class DatabaseHelper {
             stmt.executeUpdate();
 
             stmt.close();
-            System.out.println("    {db} remove_group_admins success: group_id " + groupId + "; user " + admin);
+            System.out.println("    {db} remove_group_admin success: group_id " + groupId + "; user " + admin);
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("    {db} remove_group_admins failed: unknown error");
+        System.out.println("    {db} remove_group_admin failed: unknown error");
         return false;
     }
 
@@ -301,5 +301,38 @@ public class DatabaseHelper {
         }
         System.out.println("    {db} create_group failed: unknown error");
         return ResponseBuilder.buildCreateGroupFailedMessage("Error occurred. Please try again.");
+    }
+
+    public static JSONObject getFriends(String username) {
+        ArrayList<String> friends = new ArrayList<>();
+        try {
+            String sql = "SELECT user2 FROM friend WHERE user1 = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                friends.add(rs.getString(1));
+            }
+            stmt.close();
+            rs.close();
+
+            sql = "SELECT user1 FROM friend WHERE user2 = ?";
+            stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, username);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                friends.add(rs.getString(1));
+            }
+            stmt.close();
+            rs.close();
+            System.out.println("    {db} get_friends success: " + friends.toString());
+            return ResponseBuilder.buildGetFriendsSuccessMessage(friends, "");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("    {db} get_friends failed: unknown error");
+        return ResponseBuilder.buildGetFriendsFailedMessage("Error occurred. Please try again.");
     }
 }

@@ -1,4 +1,9 @@
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Tifani on 11/2/2016.
@@ -119,6 +124,71 @@ public class ResponseBuilder {
     public static JSONObject buildExitGroupMembersFailedMessage(String info) {
         JSONObject message = new JSONObject();
         message.put(Constants.RESPONSE_TYPE, Constants.EXIT_GROUP);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    // GET FRIENDS
+    public static JSONObject buildGetFriendsSuccessMessage(ArrayList<String> friends, String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.GET_FRIENDS);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        JSONArray arr = new JSONArray();
+        arr.addAll(friends);
+        message.put(Constants.FRIENDS, arr);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    public static JSONObject buildGetFriendsFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.GET_FRIENDS);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    // GET GROUPS
+    public static JSONObject buildGetGroupsSuccessMessage(HashMap<Integer, String> groups, String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.GET_GROUPS);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        JSONArray arr = new JSONArray();
+        for (Map.Entry<Integer, String> entry : groups.entrySet()) {
+            JSONObject obj = new JSONObject();
+            obj.put(Constants.GROUP_ID, entry.getKey());
+            obj.put(Constants.GROUP_NAME, entry.getValue());
+            arr.add(obj);
+        }
+        message.put(Constants.GROUPS, arr);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    public static JSONObject buildGetGroupsFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.GET_GROUPS);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    // GET GROUP MEMBERS
+    public static JSONObject buildGetGroupMemberSuccessMessage(ArrayList<String> groupMembers, String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.GET_GROUP_MEMBERS);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        JSONArray arr = new JSONArray();
+        arr.addAll(groupMembers);
+        message.put(Constants.GROUP_MEMBERS, arr);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    public static JSONObject buildGetGroupMemberFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.GET_GROUP_MEMBERS);
         message.put(Constants.STATUS, Constants.FAILED);
         message.put(Constants.INFO, info);
         return message;

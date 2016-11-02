@@ -89,7 +89,9 @@ public class NandeNyaaServer {
         JSONObject response = null;
         JSONArray memberArrJson = null;
         ArrayList<String> members = null;
+        String message = null;
         int groupId;
+
         String type = String.valueOf(request.get(Constants.REQUEST_TYPE));
         String username = String.valueOf(request.get(Constants.USERNAME));
 
@@ -155,17 +157,19 @@ public class NandeNyaaServer {
                 if (response.get(Constants.STATUS).equals(Constants.SUCCESS)) {
                     response = ResponseBuilder.buildExitGroupMembersSuccessMessage("You have successfuly leave group");
                 } else {
-                    response = ResponseBuilder.buildAddFriendFailedMessage("Error occurred. Please try again.");
+                    response = ResponseBuilder.buildExitGroupMembersFailedMessage("Error occurred. Please try again.");
                 }
                 break;
             case Constants.PRIVATE_MESSAGE:
-                //TODO: pmc
+                String receiver = String.valueOf(request.get(Constants.RECEIVER));
+                //TODO: send ke queue client
                 break;
             case Constants.GROUP_MESSAGE:
-                //TODO: group msg
+                groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
+                //TODO: send ke group
                 break;
             case Constants.GET_FRIENDS:
-                //TODO: get friends
+                response = DatabaseHelper.getFriends(username);
                 break;
             case Constants.GET_GROUPS:
                 //TODO: get groups

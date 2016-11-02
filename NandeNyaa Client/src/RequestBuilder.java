@@ -62,9 +62,7 @@ public class RequestBuilder {
         message.put(Constants.GROUP_NAME, groupName);
         if (members != null) {
             JSONArray arr = new JSONArray();
-            for (String member : members) {
-                arr.add(member);
-            }
+            arr.addAll(members);
             message.put(Constants.MEMBERS, arr);
         }
         message.put(Constants.DATE_TIME, System.currentTimeMillis());
@@ -77,9 +75,7 @@ public class RequestBuilder {
         message.put(Constants.USERNAME, username);
         message.put(Constants.GROUP_ID, groupId);
         JSONArray arr = new JSONArray();
-        for (String member : newMembers) {
-            arr.add(member);
-        }
+        arr.addAll(newMembers);
         message.put(Constants.MEMBERS, arr);
         message.put(Constants.DATE_TIME, System.currentTimeMillis());
         return message;
@@ -108,7 +104,7 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildGetFriendMessage(String username) {
+    public static JSONObject buildGetFriendsMessage(String username) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.GET_FRIENDS);
         message.put(Constants.USERNAME, username);
@@ -116,7 +112,7 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildGetGroupMessage(String username) {
+    public static JSONObject buildGetGroupsMessage(String username) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.GET_GROUPS);
         message.put(Constants.USERNAME, username);
@@ -124,7 +120,7 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildGetGroupMemberMessage(int groupId) {
+    public static JSONObject buildGetGroupMembersMessage(int groupId) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.GET_GROUP_MEMBERS);
         message.put(Constants.GROUP_ID, groupId);
