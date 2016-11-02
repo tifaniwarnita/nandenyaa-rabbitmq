@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Tifani on 10/28/2016.
@@ -88,22 +89,24 @@ public class NandeNyaaServer {
         JSONObject response = null;
         JSONArray memberArrJson = null;
         ArrayList<String> members = null;
+        int groupId;
         String type = String.valueOf(request.get(Constants.REQUEST_TYPE));
+        String username = String.valueOf(request.get(Constants.USERNAME));
 
         switch (type) {
             case Constants.REGISTER:
                 response = DatabaseHelper.register(
-                        String.valueOf(request.get(Constants.USERNAME)),
+                        username,
                         String.valueOf(request.get(Constants.PASSWORD)));
                 break;
             case Constants.LOGIN:
                 response = DatabaseHelper.login(
-                        String.valueOf(request.get(Constants.USERNAME)),
+                        username,
                         String.valueOf(request.get(Constants.PASSWORD)));
                 break;
             case Constants.ADD_FRIEND:
                 response = DatabaseHelper.addFriend(
-                        String.valueOf(request.get(Constants.USERNAME)),
+                        username,
                         String.valueOf(request.get(Constants.USER_TO_ADD)));
                 break;
             case Constants.CREATE_GROUP:
@@ -113,34 +116,47 @@ public class NandeNyaaServer {
                     members.add(String.valueOf(el));
                 }
                 response = DatabaseHelper.createGroup(
-                        String.valueOf(request.get(Constants.USERNAME)),
+                        username,
                         String.valueOf(request.get(Constants.GROUP_NAME)),
                         members);
                 break;
             case Constants.ADD_GROUP_MEMBERS:
-                memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
-                members = new ArrayList<>();
-                for(Object el : memberArrJson){
-                    members.add(String.valueOf(el));
+                groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
+                if (!DatabaseHelper.isAdmin(username, groupId)) {
+                    System.out.println("    {db} add_group_members failed: " + username + " is not an admin");
+                    response = ResponseBuilder.buildAddGroupMembersFailedMessage("You aren't authorized to add group member(s)");
+                } else {
+                    memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
+                    members = new ArrayList<>();
+                    for(Object el : memberArrJson){
+                        members.add(String.valueOf(el));
+                    }
+                    response = DatabaseHelper.addGroupMembers(groupId, members);
                 }
-                response = DatabaseHelper.addGroupMembers(
-                        Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID))),
-                        String.valueOf(request.get(Constants.USERNAME)),
-                        members);
                 break;
             case Constants.REMOVE_GROUP_MEMBERS:
-                memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
-                members = new ArrayList<>();
-                for(Object el : memberArrJson){
-                    members.add(String.valueOf(el));
+                groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
+                if (!DatabaseHelper.isAdmin(username, groupId)) {
+                    System.out.println("    {db} remove_group_members failed: " + username + " is not an admin");
+                    response =  ResponseBuilder.buildAddGroupMembersFailedMessage("You aren't authorized to delete group member(s)");
+                } else {
+                    memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
+                    members = new ArrayList<>();
+                    for (Object el : memberArrJson) {
+                        members.add(String.valueOf(el));
+                    }
+                    response = DatabaseHelper.removeGroupMembers(groupId, members);
                 }
-                response = DatabaseHelper.removeGroupMembers(
-                        Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID))),
-                        String.valueOf(request.get(Constants.USERNAME)),
-                        members);
                 break;
             case Constants.EXIT_GROUP:
-                //TODO: leave group, if admin, remove role from table admin
+                groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
+                members = new ArrayList<>(Arrays.asList(new String[] {username}));
+                response = DatabaseHelper.removeGroupMembers(groupId, members);
+                if (response.get(Constants.STATUS).equals(Constants.SUCCESS)) {
+                    response = ResponseBuilder.buildExitGroupMembersSuccessMessage("You have successfuly leave group");
+                } else {
+                    response = ResponseBuilder.buildAddFriendFailedMessage("Error occurred. Please try again.");
+                }
                 break;
             case Constants.PRIVATE_MESSAGE:
                 //TODO: pmc

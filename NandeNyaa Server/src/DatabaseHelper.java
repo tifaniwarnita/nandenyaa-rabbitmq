@@ -83,7 +83,7 @@ public class DatabaseHelper {
         return friend;
     }
 
-    private static boolean isAdmin(String username, int groupId) {
+    public static boolean isAdmin(String username, int groupId) {
         boolean admin = false;
         try {
             String sql = "SELECT group_id FROM group_admin WHERE (group_id = ? AND admin = ?)";
@@ -199,56 +199,67 @@ public class DatabaseHelper {
         return false;
     }
 
-    public static JSONObject addGroupMembers(int groupId, String username, ArrayList<String> members) {
-        if (!isAdmin(username, groupId)) {
-            System.out.println("    {db} add_group_members failed: " + username + " is not an admin");
-            return ResponseBuilder.buildAddGroupMembersFailedMessage("You aren't authorized to add group member(s)");
-        } else {
-            try {
-                String sql = "INSERT INTO group_member (group_id, member ) VALUES (?, ?)";
-                PreparedStatement stmt = conn.prepareStatement(sql);
+    public static JSONObject addGroupMembers(int groupId, ArrayList<String> members) {
+        try {
+            String sql = "INSERT INTO group_member (group_id, member ) VALUES (?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
 
-                for(String member: members) {
-                    stmt.setInt(1, groupId);
-                    stmt.setString(2, member);
-                    stmt.executeUpdate();
-                    System.out.println("    {db} add_group_members success: group_id " + groupId + "; user " + member);
-                }
-                stmt.close();
-                System.out.println("    {db} add_group_members success: all success");
-                return ResponseBuilder.buildAddGroupMembersSuccessMessage("User(s) has been added to group");
-            } catch (SQLException e) {
-                e.printStackTrace();
+            for(String member: members) {
+                stmt.setInt(1, groupId);
+                stmt.setString(2, member);
+                stmt.executeUpdate();
+                System.out.println("    {db} add_group_members success: group_id " + groupId + "; user " + member);
             }
+            stmt.close();
+            System.out.println("    {db} add_group_members success: all success");
+            return ResponseBuilder.buildAddGroupMembersSuccessMessage("User(s) has been added to group");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         System.out.println("    {db} add_group_members failed: unknown error");
         return ResponseBuilder.buildAddGroupMembersFailedMessage("Error occurred. Please try again.");
     }
 
-    public static JSONObject removeGroupMembers(int groupId, String username, ArrayList<String> members) {
-        if (!isAdmin(username, groupId)) {
-            System.out.println("    {db} remove_group_members failed: " + username + " is not an admin");
-            return ResponseBuilder.buildAddGroupMembersFailedMessage("You aren't authorized to delete group member(s)");
-        } else {
-            try {
-                String sql = "DELETE FROM group_member WHERE (group_id = ? AND member = ?)";
-                PreparedStatement stmt = conn.prepareStatement(sql);
+    public static boolean removeGroupAdmin(int groupId, String admin) {
+        try {
+            String sql = "DELETE FROM group_admin WHERE (group_id = ? AND admin = ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
 
-                for(String member: members) {
-                    stmt.setInt(1, groupId);
-                    stmt.setString(2, member);
-                    stmt.executeUpdate();
-                    System.out.println("    {db} remove_group_members success: group_id " + groupId + "; user " + member);
-                }
-                stmt.close();
-                System.out.println("    {db} remove_group_members success: all success");
-                return ResponseBuilder.buildAddGroupMembersSuccessMessage("User(s) has been removed from group");
-            } catch (SQLException e) {
-                e.printStackTrace();
+            stmt.setInt(1, groupId);
+            stmt.setString(2, admin);
+            stmt.executeUpdate();
+
+            stmt.close();
+            System.out.println("    {db} remove_group_admins success: group_id " + groupId + "; user " + admin);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("    {db} remove_group_admins failed: unknown error");
+        return false;
+    }
+
+    public static JSONObject removeGroupMembers(int groupId, ArrayList<String> members) {
+        try {
+            String sql = "DELETE FROM group_member WHERE (group_id = ? AND member = ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            for(String member: members) {
+                stmt.setInt(1, groupId);
+                stmt.setString(2, member);
+                stmt.executeUpdate();
+                if (isAdmin(member, groupId))
+                    removeGroupAdmin(groupId, member);
+                System.out.println("    {db} remove_group_members success: group_id " + groupId + "; user " + member);
             }
+            stmt.close();
+            System.out.println("    {db} remove_group_members success: all success");
+            return ResponseBuilder.buildRemoveGroupMembersSuccessMessage("User(s) has been removed from group");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         System.out.println("    {db} remove_group_members failed: unknown error");
-        return ResponseBuilder.buildAddGroupMembersFailedMessage("Error occurred. Please try again.");
+        return ResponseBuilder.buildRemoveGroupMembersFailedMessage("Error occurred. Please try again.");
     }
 
     public static JSONObject createGroup(String username, String groupName, ArrayList<String> members) {
@@ -269,8 +280,8 @@ public class DatabaseHelper {
                 stmt.close();
 
                 addGroupAdmin(id, username);
-                addGroupMembers(id, username, new ArrayList<>(Arrays.asList(new String[] {username})));
-                addGroupMembers(id, username, members);
+                members.add(0, username);
+                addGroupMembers(id, members);
 
                 conn.commit();
                 conn.setAutoCommit(true);

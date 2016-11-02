@@ -87,10 +87,14 @@ public class NandeNyaaClient {
 //                    RequestBuilder.buildAddGroupMembersMessage("kucing", 5, members)
 //                            .toJSONString());
 
-            ArrayList members = new ArrayList();
-            members.add("snowball");
+//            ArrayList members = new ArrayList();
+//            members.add("snowball");
+//            response = client.call(
+//                    RequestBuilder.buildRemoveGroupMembersMessage("kucing", 5, members)
+//                            .toJSONString());
+
             response = client.call(
-                    RequestBuilder.buildRemoveGroupMembersMessage("kucing", 5, members)
+                    RequestBuilder.buildExitGroupMessage("kucing", 5)
                             .toJSONString());
 
             System.out.println(" [.] Got response " + response);

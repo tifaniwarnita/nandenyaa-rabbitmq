@@ -90,6 +90,40 @@ public class ResponseBuilder {
         return message;
     }
 
+    // REMOVE GROUP MEMBER
+    public static JSONObject buildRemoveGroupMembersSuccessMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.REMOVE_GROUP_MEMBERS);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    public static JSONObject buildRemoveGroupMembersFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.REMOVE_GROUP_MEMBERS);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    // EXIT GROUP
+    public static JSONObject buildExitGroupMembersSuccessMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.EXIT_GROUP);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    public static JSONObject buildExitGroupMembersFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.EXIT_GROUP);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
     public static JSONObject buildUnknownErrorMessage(String info) {
         JSONObject message = new JSONObject();
         message.put(Constants.RESPONSE_TYPE, Constants.UNKNOWN);
