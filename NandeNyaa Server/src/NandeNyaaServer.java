@@ -4,9 +4,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by Tifani on 10/28/2016.
@@ -33,7 +31,9 @@ public class NandeNyaaServer {
             // Non-durable (won't survive a server restart)
             // Exclusive (other channels cannot connect to the same queue)
             // Not auto-deleted once it’s no longer being used
-            channel.queueDeclare(Constants.SERVER_QUEUERE_NAME, false, false, true, null);
+            Map<String, Object> args = new HashMap<String, Object>();
+            args.put("x-dead-letter-exchange", "some.exchange.name");
+            channel.queueDeclare(Constants.SERVER_QUEUERE_NAME, false, false, true, args);
             channel.exchangeDeclare(Constants.EXCHANGE_NAME, "direct");
 
             // Accept only one un-ack-ed message at a time
@@ -53,6 +53,7 @@ public class NandeNyaaServer {
                 AMQP.BasicProperties replyProps = new AMQP.BasicProperties
                         .Builder()
                         .correlationId(props.getCorrelationId())
+                        .deliveryMode(2)
                         .build();
 
                 try {
@@ -97,6 +98,12 @@ public class NandeNyaaServer {
 
         String type = String.valueOf(request.get(Constants.REQUEST_TYPE));
         String username = String.valueOf(request.get(Constants.USERNAME));
+
+        AMQP.BasicProperties props = new AMQP.BasicProperties
+                .Builder()
+                .deliveryMode(2)
+                .priority(1)
+                .build();
 
         switch (type) {
             case Constants.REGISTER:
@@ -167,10 +174,14 @@ public class NandeNyaaServer {
                 String receiver = String.valueOf(request.get(Constants.RECEIVER));
                 //TODO: send ke queue client
                 try {
-                    channel.basicPublish(Constants.EXCHANGE_NAME, receiver, null, request.toJSONString().getBytes());
+                    Map<String, Object> args = new HashMap<>();
+                    args.put("x-dead-letter-exchange", "some.exchange.name");
+                    channel.queueDeclare(receiver, false, false, true, args);
+                    channel.basicPublish("", receiver, props, request.toJSONString().getBytes());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                System.out.println("    private_message: send to " + receiver);
                 response = ResponseBuilder.buildDeliverPrivateMessageSuccessMessage("Private chat has been delivered");
                 break;
             case Constants.GROUP_MESSAGE:
@@ -178,7 +189,11 @@ public class NandeNyaaServer {
                 JSONArray receivers = (JSONArray) DatabaseHelper.getGroupMembers(groupId).get(Constants.GROUP_MEMBERS);
                 try {
                     for (Object rec : receivers) {
-                        channel.basicPublish(Constants.EXCHANGE_NAME, (String) rec, null, request.toJSONString().getBytes());
+                        System.out.println("    group_message: send to " + rec);
+                        Map<String, Object> args = new HashMap<>();
+                        args.put("x-dead-letter-exchange", "some.exchange.name");
+                        channel.queueDeclare((String) rec, false, false, true, args);
+                        channel.basicPublish("", (String) rec, props, request.toJSONString().getBytes());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

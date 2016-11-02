@@ -5,6 +5,7 @@ public class Constants {
     public static final String SERVER_ADDRESS = "localhost";
     public static final String SERVER_QUEUERE_NAME = "rpc_nandenyaa";
     public static final String EXCHANGE_NAME = "nandenyaa_exchange";
+    public static final String DEAD_LETTER_EXCHANGE_NAME = "dead_letter_nandenyaa_exchange";
     public static final String REQUEST_TYPE = "request_type";
     public static final String RESPONSE_TYPE = "response_type";
 

@@ -3,6 +3,8 @@ import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -44,7 +46,7 @@ public class NandeNyaaClient {
         };
 
         channel.basicConsume(RESPONSE_QUEUE_NAME, true, queueConsumer);
-        channel.basicConsume(CLIENT_QUEUE_NAME, true, emitConsumer);
+        // channel.basicConsume(CLIENT_QUEUE_NAME, true, emitConsumer);
     }
 
     public String call(String message) throws Exception {
@@ -83,17 +85,24 @@ public class NandeNyaaClient {
         try {
             client = new NandeNyaaClient();
 
+//            client.loginSuccess("acel");
+//            System.out.println("ini acel");
+//            response = client.call(
+//                    RequestBuilder.buildGroupMessage("acel", 2, "TES ACEL")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
 
-            client.loginSuccess("kucing");
+//            client.loginSuccess("kucing");
+//            System.out.println("ini kucing");
+//            response = client.call(
+//                    RequestBuilder.buildGroupMessage("kucing", 2, "TES KUCING")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
 
+            client.loginSuccess("tifani");
+            System.out.println("ini tifani");
             response = client.call(
-                    RequestBuilder.buildGetGroupMembersMessage("tifani", 5)
-                            .toJSONString());
-            System.out.println(" [.] Got response " + response);
-
-            client.loginSuccess("acel");
-            response = client.call(
-                    RequestBuilder.buildGroupMessage("tifani", 2, "Hai msg group neh2 untuk group 2")
+                    RequestBuilder.buildGroupMessage("tifani", 2, "TES TIFANI")
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
 
@@ -203,6 +212,10 @@ public class NandeNyaaClient {
         activeUser = username;
         try {
             channel.queueBind(CLIENT_QUEUE_NAME, EXCHANGE_NAME, username);
+            Map<String, Object> args = new HashMap<String, Object>();
+            args.put("x-dead-letter-exchange", "some.exchange.name");
+            channel.queueDeclare(username, false, false, true, args);
+            channel.basicConsume(username, true, emitConsumer);
         } catch (IOException e) {
             e.printStackTrace();
         }
