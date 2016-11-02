@@ -3,8 +3,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by Tifani on 10/28/2016.
@@ -32,6 +34,7 @@ public class NandeNyaaServer {
             // Exclusive (other channels cannot connect to the same queue)
             // Not auto-deleted once it’s no longer being used
             channel.queueDeclare(Constants.SERVER_QUEUERE_NAME, false, false, true, null);
+            channel.exchangeDeclare(Constants.EXCHANGE_NAME, "direct");
 
             // Accept only one un-ack-ed message at a time
             channel.basicQos(1);
@@ -163,9 +166,24 @@ public class NandeNyaaServer {
             case Constants.PRIVATE_MESSAGE:
                 String receiver = String.valueOf(request.get(Constants.RECEIVER));
                 //TODO: send ke queue client
+                try {
+                    channel.basicPublish(Constants.EXCHANGE_NAME, receiver, null, request.toJSONString().getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                response = ResponseBuilder.buildDeliverPrivateMessageSuccessMessage("Private chat has been delivered");
                 break;
             case Constants.GROUP_MESSAGE:
                 groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
+                JSONArray receivers = (JSONArray) DatabaseHelper.getGroupMembers(groupId).get(Constants.GROUP_MEMBERS);
+                try {
+                    for (Object rec : receivers) {
+                        channel.basicPublish(Constants.EXCHANGE_NAME, (String) rec, null, request.toJSONString().getBytes());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                response = ResponseBuilder.buildDeliverGroupMessageSuccessMessage("Group chat has been delivered");
                 //TODO: send ke group
                 break;
             case Constants.GET_FRIENDS:

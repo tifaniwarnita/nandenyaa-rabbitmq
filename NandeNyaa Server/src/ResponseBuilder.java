@@ -129,6 +129,40 @@ public class ResponseBuilder {
         return message;
     }
 
+    // SEND PRIVATE CHAT
+    public static JSONObject buildDeliverPrivateMessageSuccessMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.PRIVATE_MESSAGE);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    public static JSONObject buildDeliverPrivateMessageFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.PRIVATE_MESSAGE);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    // SEND GROUP CHAT
+    public static JSONObject buildDeliverGroupMessageSuccessMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.GROUP_MESSAGE);
+        message.put(Constants.STATUS, Constants.SUCCESS);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
+    public static JSONObject buildDeliverGroupMessageFailedMessage(String info) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.RESPONSE_TYPE, Constants.GROUP_MESSAGE);
+        message.put(Constants.STATUS, Constants.FAILED);
+        message.put(Constants.INFO, info);
+        return message;
+    }
+
     // GET FRIENDS
     public static JSONObject buildGetFriendsSuccessMessage(ArrayList<String> friends, String info) {
         JSONObject message = new JSONObject();

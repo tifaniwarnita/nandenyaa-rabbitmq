@@ -1,6 +1,7 @@
 import com.rabbitmq.client.*;
 import org.json.simple.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -10,9 +11,15 @@ import java.util.UUID;
 public class NandeNyaaClient {
     private Connection connetion;
     private Channel channel;
-    private QueueingConsumer consumer;
-    private String requestQueueName = Constants.SERVER_QUEUERE_NAME;
-    private String replyQueueName;
+    private QueueingConsumer queueConsumer;
+    private Consumer emitConsumer;
+
+    private String REQUEST_QUEUE_NAME = Constants.SERVER_QUEUERE_NAME;
+    private String RESPONSE_QUEUE_NAME;
+    private String CLIENT_QUEUE_NAME;
+    private String EXCHANGE_NAME = Constants.EXCHANGE_NAME;
+
+    private String activeUser = null;
 
     public NandeNyaaClient() throws Exception {
         // Create new connection
@@ -21,9 +28,23 @@ public class NandeNyaaClient {
         connetion = factory.newConnection();
         channel = connetion.createChannel();
 
-        replyQueueName = channel.queueDeclare().getQueue();
-        consumer = new QueueingConsumer(channel);
-        channel.basicConsume(replyQueueName, true, consumer);
+        channel.exchangeDeclare(EXCHANGE_NAME, "direct");
+        RESPONSE_QUEUE_NAME = channel.queueDeclare().getQueue();
+        CLIENT_QUEUE_NAME = channel.queueDeclare().getQueue();
+        System.out.println("Response queue: " + RESPONSE_QUEUE_NAME);
+        queueConsumer = new QueueingConsumer(channel);
+
+        emitConsumer = new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope,
+                                       AMQP.BasicProperties properties, byte[] body) throws IOException {
+                String message = new String(body, "UTF-8");
+                System.out.println(" [x] Received message: '" + message + "'");
+            }
+        };
+
+        channel.basicConsume(RESPONSE_QUEUE_NAME, true, queueConsumer);
+        channel.basicConsume(CLIENT_QUEUE_NAME, true, emitConsumer);
     }
 
     public String call(String message) throws Exception {
@@ -33,14 +54,15 @@ public class NandeNyaaClient {
         AMQP.BasicProperties props = new AMQP.BasicProperties
                 .Builder()
                 .correlationId(corrId)
-                .replyTo(replyQueueName)
+                .replyTo(RESPONSE_QUEUE_NAME)
                 .build();
 
-        channel.basicPublish("", requestQueueName, props, message.getBytes("UTF-8"));
+        // Send to server without exchange
+        channel.basicPublish("", REQUEST_QUEUE_NAME, props, message.getBytes("UTF-8"));
 
         // Wait for response
         while (true) {
-            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+            QueueingConsumer.Delivery delivery = queueConsumer.nextDelivery();
             if (delivery.getProperties().getCorrelationId().equals(corrId)) {
                 response = new String(delivery.getBody(), "UTF-8");
                 break;
@@ -60,6 +82,22 @@ public class NandeNyaaClient {
 
         try {
             client = new NandeNyaaClient();
+
+
+            client.loginSuccess("kucing");
+
+            response = client.call(
+                    RequestBuilder.buildGetGroupMembersMessage("tifani", 5)
+                            .toJSONString());
+            System.out.println(" [.] Got response " + response);
+
+            client.loginSuccess("acel");
+            response = client.call(
+                    RequestBuilder.buildGroupMessage("tifani", 2, "Hai msg group neh2 untuk group 2")
+                            .toJSONString());
+            System.out.println(" [.] Got response " + response);
+
+            while(true) {}
 
 //            System.out.println(" [x] Register username: kucing password: meong");
 //            response = client.call(
@@ -133,20 +171,20 @@ public class NandeNyaaClient {
 //                            .toJSONString());
 //            System.out.println(" [.] Got response " + response);
 
-            response = client.call(
-                    RequestBuilder.buildGetGroupMembersMessage(1)
-                            .toJSONString());
-            System.out.println(" [.] Got response " + response);
-
-            response = client.call(
-                    RequestBuilder.buildGetGroupMembersMessage(3)
-                            .toJSONString());
-            System.out.println(" [.] Got response " + response);
-
-            response = client.call(
-                    RequestBuilder.buildGetGroupMembersMessage(5)
-                            .toJSONString());
-            System.out.println(" [.] Got response " + response);
+//            response = client.call(
+//                    RequestBuilder.buildGetGroupMembersMessage(1)
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+//
+//            response = client.call(
+//                    RequestBuilder.buildGetGroupMembersMessage(3)
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+//
+//            response = client.call(
+//                    RequestBuilder.buildGetGroupMembersMessage(5)
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -161,4 +199,21 @@ public class NandeNyaaClient {
         }
     }
 
+    public void loginSuccess(String username) {
+        activeUser = username;
+        try {
+            channel.queueBind(CLIENT_QUEUE_NAME, EXCHANGE_NAME, username);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void logoutSuccess(String username) {
+        activeUser = null;
+        try {
+            channel.queueUnbind(CLIENT_QUEUE_NAME, EXCHANGE_NAME, username);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

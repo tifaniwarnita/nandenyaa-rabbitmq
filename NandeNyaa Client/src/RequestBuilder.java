@@ -120,9 +120,10 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildGetGroupMembersMessage(int groupId) {
+    public static JSONObject buildGetGroupMembersMessage(String username, int groupId) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.GET_GROUP_MEMBERS);
+        message.put(Constants.USERNAME, username);
         message.put(Constants.GROUP_ID, groupId);
         message.put(Constants.DATE_TIME, System.currentTimeMillis());
         return message;
