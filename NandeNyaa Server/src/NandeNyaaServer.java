@@ -92,6 +92,22 @@ public class NandeNyaaServer {
             response = DatabaseHelper.login(
                     String.valueOf(request.get(Constants.USERNAME)),
                     String.valueOf(request.get(Constants.PASSWORD)));
+        } else if (type.equals(Constants.ADD_FRIEND)) {
+            response = DatabaseHelper.addFriend(
+                    String.valueOf(request.get(Constants.USERNAME)),
+                    String.valueOf(request.get(Constants.USER_TO_ADD)));
+        } else if (type.equals(Constants.CREATE_GROUP)) {
+            //TODO: create group, creator being the admin
+        } else if (type.equals(Constants.ADD_GROUP_MEMBERS)) {
+            //TODO: add group member
+        } else if (type.equals(Constants.REMOVE_GROUP_MEMBERS)) {
+            //TODO: add group member
+        } else if (type.equals(Constants.EXIT_GROUP)) {
+            //TODO: add group member, if admin, remove role from table admin
+        } else if (type.equals(Constants.PRIVATE_MESSAGE)) {
+            //TODO: add group member
+        } else if (type.equals(Constants.GROUP_MESSAGE)) {
+            //TODO: add group member
         }
 
         return response;

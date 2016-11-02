@@ -39,7 +39,7 @@ public class DatabaseHelper {
     }
 
     public static boolean isUsernameExist(String username) {
-        boolean success = false;
+        boolean exist = false;
         try {
             String sql = "SELECT username FROM user WHERE username = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -47,19 +47,43 @@ public class DatabaseHelper {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                success = true;
+                exist = true;
             }
             stmt.close();
             rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return success;
+        return exist;
+    }
+
+    public static boolean isFriend(String user1, String user2) {
+        boolean friend = false;
+        try {
+            String sql = "SELECT user1 " +
+                    "FROM friend " +
+                    "WHERE ((user1 = ? AND user2 = ?) OR (user1 = ? AND user2 = ?))";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, user1);
+            stmt.setString(2, user2);
+            stmt.setString(3, user2);
+            stmt.setString(4, user1);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                friend = true;
+            }
+            stmt.close();
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return friend;
     }
 
     public static JSONObject register(String username, String password) {
         if (isUsernameExist(username)) {
-            System.out.println("    {db} Register (failed): username has already exist");
+            System.out.println("    {db} REGISTER FAILED: Username has already exist");
             return ResponseBuilder.buildRegisterFailedMessage("Username has already exist");
         } else {
             try {
@@ -72,13 +96,13 @@ public class DatabaseHelper {
 
                 stmt.close();
 
-                System.out.println("    {db} Register (success): username " + username);
+                System.out.println("    {db} REGISTER SUCCESS: Username " + username);
                 return ResponseBuilder.buildRegisterSuccessMessage("User " + username + " has been succesfully registered");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("    {db} Register (failed): unknown error");
+        System.out.println("    {db} REGISTER FAILED: Unknown error");
         return ResponseBuilder.buildRegisterFailedMessage("Error occurred. Please try again.");
     }
 
@@ -97,16 +121,41 @@ public class DatabaseHelper {
             stmt.close();
             rs.close();
             if (success) {
-                System.out.println("    {db} Login (success): username " + username);
+                System.out.println("    {db} LOGIN SUCCESS: Username " + username);
                 return ResponseBuilder.buildLoginSuccessMessage("Logged in");
             } else {
-                System.out.println("    {db} Login (failed): Wrong username or password");
+                System.out.println("    {db} LOGIN FAILED: Wrong username or password");
                 return ResponseBuilder.buildLoginFailedMessage("Wrong username or password");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("    {db} Login (failed): Unknown error");
-        return ResponseBuilder.buildLoginFailedMessage("Unknown error");
+        System.out.println("    {db} LOGIN FAILED: Unknown error");
+        return ResponseBuilder.buildLoginFailedMessage("Error occurred. Please try again.");
+    }
+
+    public static JSONObject addFriend(String user1, String user2) {
+        if (isFriend(user1, user2)) {
+            System.out.println("    {db} ADD FRIEND FAILED: " + user1 + " has already been friend of " + user2);
+            return ResponseBuilder.buildAddFriendFailedMessage(user1 + " has already been friend of " + user2);
+        } else {
+            try {
+                String sql = "INSERT INTO friend (user1, user2) VALUES (?, ?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+
+                stmt.setString(1, user1);
+                stmt.setString(2, user2);
+                stmt.executeUpdate();
+
+                stmt.close();
+
+                System.out.println("    {db} ADD FRIEND SUCCESS: " + user1 + " with " + user2);
+                return ResponseBuilder.buildAddFriendSuccessMessage(user2 + " has been added");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("    {db} ADD FRIEND FAILED: Unknown error");
+        return ResponseBuilder.buildAddFriendFailedMessage("Error occurred. Please try again.");
     }
 }

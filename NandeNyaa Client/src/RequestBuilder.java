@@ -46,7 +46,7 @@ public class RequestBuilder {
         return message;
     }
 
-    public static JSONObject buildAddUserMessage(String username, String userToAdd) {
+    public static JSONObject buildAddFriendMessage(String username, String userToAdd) {
         JSONObject message = new JSONObject();
         message.put(Constants.REQUEST_TYPE, Constants.ADD_FRIEND);
         message.put(Constants.USERNAME, username);

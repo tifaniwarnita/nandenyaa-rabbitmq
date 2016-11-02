@@ -64,8 +64,12 @@ public class NandeNyaaClient {
 //            response = client.call(
 //                    RequestBuilder.buildRegisterMessage("kucing", "meong")
 //                            .toJSONString());
+
+//            response = client.call(
+//                    RequestBuilder.buildLoginMessage("kucing", "meong")
+//                            .toJSONString());
             response = client.call(
-                    RequestBuilder.buildLoginMessage("kucing", "meong")
+                    RequestBuilder.buildAddFriendMessage("kucing", "acel")
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
         } catch (Exception e) {
