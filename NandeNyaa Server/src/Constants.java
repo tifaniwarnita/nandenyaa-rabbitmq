@@ -17,6 +17,9 @@ public class Constants {
     public static final String ADD_GROUP_MEMBERS = "add_group_members";
     public static final String REMOVE_GROUP_MEMBERS = "remove_group_members";
     public static final String EXIT_GROUP = "exit_group";
+    public static final String GET_FRIENDS = "get_friends";
+    public static final String GET_GROUPS = "get_groups";
+    public static final String GET_GROUP_MEMBERS = "get_group_members";
 
     // Response type
     public static final String SUCCESS = "success";

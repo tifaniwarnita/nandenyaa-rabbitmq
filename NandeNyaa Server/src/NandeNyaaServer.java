@@ -55,9 +55,10 @@ public class NandeNyaaServer {
                     JSONObject request = (JSONObject) (new JSONParser())
                             .parse(new String(delivery.getBody(), "UTF-8"));
 
-                    System.out.println(" [.] Get message: "
-                            + String.valueOf(request.get(Constants.USERNAME) + " - "
-                            + String.valueOf(request.get(Constants.REQUEST_TYPE))));
+                    System.out.println(" [.] "
+                            + String.valueOf(request.get(Constants.REQUEST_TYPE)).toUpperCase()
+                            + " from "
+                            + String.valueOf(request.get(Constants.USERNAME)));
                     response = processRequest(request);
                 } catch (Exception e) {
                     System.out.println(" [.] " + e.toString());
@@ -88,48 +89,67 @@ public class NandeNyaaServer {
         JSONArray memberArrJson = null;
         ArrayList<String> members = null;
         String type = String.valueOf(request.get(Constants.REQUEST_TYPE));
-        // Register
-        if(type.equals(Constants.REGISTER)) {
-            response = DatabaseHelper.register(
-                    String.valueOf(request.get(Constants.USERNAME)),
-                    String.valueOf(request.get(Constants.PASSWORD)));
-        } else if (type.equals(Constants.LOGIN)) {
-            response = DatabaseHelper.login(
-                    String.valueOf(request.get(Constants.USERNAME)),
-                    String.valueOf(request.get(Constants.PASSWORD)));
-        } else if (type.equals(Constants.ADD_FRIEND)) {
-            response = DatabaseHelper.addFriend(
-                    String.valueOf(request.get(Constants.USERNAME)),
-                    String.valueOf(request.get(Constants.USER_TO_ADD)));
-        } else if (type.equals(Constants.CREATE_GROUP)) {
-            memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
-            members = new ArrayList<>();
-            for(Object el : memberArrJson){
-                members.add(String.valueOf(el));
-            }
-            response = DatabaseHelper.createGroup(
-                    String.valueOf(request.get(Constants.USERNAME)),
-                    String.valueOf(request.get(Constants.GROUP_NAME)),
-                    members);
-        } else if (type.equals(Constants.ADD_GROUP_MEMBERS)) {
-            memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
-            members = new ArrayList<>();
-            for(Object el : memberArrJson){
-                members.add(String.valueOf(el));
-            }
-            response = DatabaseHelper.addGroupMembers(
-                    Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID))),
-                    String.valueOf(request.get(Constants.USERNAME)),
-                    members,
-                    false);
-        } else if (type.equals(Constants.REMOVE_GROUP_MEMBERS)) {
-            //TODO: remove group member
-        } else if (type.equals(Constants.EXIT_GROUP)) {
-            //TODO: leave group, if admin, remove role from table admin
-        } else if (type.equals(Constants.PRIVATE_MESSAGE)) {
-            //TODO: pm
-        } else if (type.equals(Constants.GROUP_MESSAGE)) {
-            //TODO: group msg
+
+        switch (type) {
+            case Constants.REGISTER:
+                response = DatabaseHelper.register(
+                        String.valueOf(request.get(Constants.USERNAME)),
+                        String.valueOf(request.get(Constants.PASSWORD)));
+                break;
+            case Constants.LOGIN:
+                response = DatabaseHelper.login(
+                        String.valueOf(request.get(Constants.USERNAME)),
+                        String.valueOf(request.get(Constants.PASSWORD)));
+                break;
+            case Constants.ADD_FRIEND:
+                response = DatabaseHelper.addFriend(
+                        String.valueOf(request.get(Constants.USERNAME)),
+                        String.valueOf(request.get(Constants.USER_TO_ADD)));
+                break;
+            case Constants.CREATE_GROUP:
+                memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
+                members = new ArrayList<>();
+                for(Object el : memberArrJson){
+                    members.add(String.valueOf(el));
+                }
+                response = DatabaseHelper.createGroup(
+                        String.valueOf(request.get(Constants.USERNAME)),
+                        String.valueOf(request.get(Constants.GROUP_NAME)),
+                        members);
+                break;
+            case Constants.ADD_GROUP_MEMBERS:
+                memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
+                members = new ArrayList<>();
+                for(Object el : memberArrJson){
+                    members.add(String.valueOf(el));
+                }
+                response = DatabaseHelper.addGroupMembers(
+                        Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID))),
+                        String.valueOf(request.get(Constants.USERNAME)),
+                        members);
+                break;
+            case Constants.REMOVE_GROUP_MEMBERS:
+                //TODO: remove group member
+                break;
+            case Constants.EXIT_GROUP:
+                //TODO: leave group, if admin, remove role from table admin
+                break;
+            case Constants.PRIVATE_MESSAGE:
+                //TODO: pmc
+                break;
+            case Constants.GROUP_MESSAGE:
+                //TODO: group msg
+                break;
+            case Constants.GET_FRIENDS:
+                //TODO: get friends
+                break;
+            case Constants.GET_GROUPS:
+                //TODO: get groups
+                break;
+            case Constants.GET_GROUP_MEMBERS:
+                //TODO: get group members
+                break;
+            default:
         }
 
         return response;

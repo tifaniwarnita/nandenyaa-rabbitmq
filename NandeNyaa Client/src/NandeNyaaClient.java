@@ -78,13 +78,13 @@ public class NandeNyaaClient {
 //            members.add("tifani");
 //            members.add("acel");
 //            response = client.call(
-//                    RequestBuilder.buildCreateGroupMessage("kucing", "Miaw", members)
+//                    RequestBuilder.buildCreateGroupMessage("kucing", "Snowball Nyaw", members)
 //                            .toJSONString());
 
             ArrayList members = new ArrayList();
             members.add("snowball");
             response = client.call(
-                    RequestBuilder.buildAddGroupMembersMessage("kucing", 2, members)
+                    RequestBuilder.buildAddGroupMembersMessage("kucing", 5, members)
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
         } catch (Exception e) {

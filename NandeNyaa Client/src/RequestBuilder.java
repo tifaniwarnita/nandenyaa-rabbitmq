@@ -107,4 +107,28 @@ public class RequestBuilder {
         message.put(Constants.DATE_TIME, System.currentTimeMillis());
         return message;
     }
+
+    public static JSONObject buildGetFriendMessage(String username) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.REQUEST_TYPE, Constants.GET_FRIENDS);
+        message.put(Constants.USERNAME, username);
+        message.put(Constants.DATE_TIME, System.currentTimeMillis());
+        return message;
+    }
+
+    public static JSONObject buildGetGroupMessage(String username) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.REQUEST_TYPE, Constants.GET_GROUPS);
+        message.put(Constants.USERNAME, username);
+        message.put(Constants.DATE_TIME, System.currentTimeMillis());
+        return message;
+    }
+
+    public static JSONObject buildGetGroupMemberMessage(int groupId) {
+        JSONObject message = new JSONObject();
+        message.put(Constants.REQUEST_TYPE, Constants.GET_GROUP_MEMBERS);
+        message.put(Constants.GROUP_ID, groupId);
+        message.put(Constants.DATE_TIME, System.currentTimeMillis());
+        return message;
+    }
 }

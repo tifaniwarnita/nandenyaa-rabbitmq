@@ -2,6 +2,7 @@ import org.json.simple.JSONObject;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Tifani on 11/1/2016.
@@ -80,6 +81,26 @@ public class DatabaseHelper {
             e.printStackTrace();
         }
         return friend;
+    }
+
+    private static boolean isAdmin(String username, int groupId) {
+        boolean admin = false;
+        try {
+            String sql = "SELECT group_id FROM group_admin WHERE (group_id = ? AND admin = ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setInt(1, groupId);
+            stmt.setString(2, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                admin = true;
+            }
+            stmt.close();
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return admin;
     }
 
     public static JSONObject register(String username, String password) {
@@ -178,26 +199,27 @@ public class DatabaseHelper {
         return false;
     }
 
-    public static JSONObject addGroupMembers(int groupId, String admin, ArrayList<String> members, boolean createGroup) {
-        try {
-            String sql = "INSERT INTO group_member (group_id, member ) VALUES (?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
+    public static JSONObject addGroupMembers(int groupId, String username, ArrayList<String> members) {
+        if (!isAdmin(username, groupId)) {
+            System.out.println("    {db} ADD GROUP MEMBERS FAILED: " + username + " is not an admin");
+            return ResponseBuilder.buildAddGroupMembersFailedMessage("You aren't authorized to add members");
+        } else {
+            try {
+                String sql = "INSERT INTO group_member (group_id, member ) VALUES (?, ?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
 
-            if (createGroup) {
-                members.add(0, admin);
+                for(String member: members) {
+                    stmt.setInt(1, groupId);
+                    stmt.setString(2, member);
+                    stmt.executeUpdate();
+                    System.out.println("    {db} ADD GROUP MEMBERS SUCCESS: group_id " + groupId + "; user " + member);
+                }
+                stmt.close();
+                System.out.println("    {db} ADD GROUP MEMBERS SUCCESS: All success");
+                return ResponseBuilder.buildAddGroupMembersSuccessMessage("User(s) has been added to group");
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-
-            for(String member: members) {
-                stmt.setInt(1, groupId);
-                stmt.setString(2, member);
-                stmt.executeUpdate();
-                System.out.println("    {db} ADD GROUP MEMBER SUCCESS: group_id " + groupId + "; user " + member);
-            }
-            stmt.close();
-            System.out.println("    {db} ADD GROUP MEMBERS SUCCESS: All success");
-            return ResponseBuilder.buildAddGroupMembersSuccessMessage("User(s) has been added to group");
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         System.out.println("    {db} ADD FRIEND FAILED: Unknown error");
         return ResponseBuilder.buildAddGroupMembersFailedMessage("Error occurred. Please try again.");
@@ -205,6 +227,7 @@ public class DatabaseHelper {
 
     public static JSONObject createGroup(String username, String groupName, ArrayList<String> members) {
         int id;
+        boolean success = true;
         try {
             conn.setAutoCommit(false);
 
@@ -219,8 +242,8 @@ public class DatabaseHelper {
                 rs.close();
                 stmt.close();
 
-                addGroupAdmin(id, username);
-                addGroupMembers(id, username, members, true);
+                addGroupMembers(id, username, new ArrayList<>(Arrays.asList(new String[] {username})));
+                addGroupMembers(id, username, members);
 
                 conn.commit();
                 conn.setAutoCommit(true);
