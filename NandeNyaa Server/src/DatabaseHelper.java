@@ -105,7 +105,7 @@ public class DatabaseHelper {
 
     public static JSONObject register(String username, String password) {
         if (isUsernameExist(username)) {
-            System.out.println("    {db} REGISTER FAILED: Username has already exist");
+            System.out.println("    {db} register failed: username has already exist");
             return ResponseBuilder.buildRegisterFailedMessage("Username has already exist");
         } else {
             try {
@@ -118,13 +118,13 @@ public class DatabaseHelper {
 
                 stmt.close();
 
-                System.out.println("    {db} REGISTER SUCCESS: username " + username);
+                System.out.println("    {db} register success: username " + username);
                 return ResponseBuilder.buildRegisterSuccessMessage("User " + username + " has been succesfully registered");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("    {db} REGISTER FAILED: Unknown error");
+        System.out.println("    {db} register failed: unknown error");
         return ResponseBuilder.buildRegisterFailedMessage("Error occurred. Please try again.");
     }
 
@@ -143,22 +143,22 @@ public class DatabaseHelper {
             stmt.close();
             rs.close();
             if (success) {
-                System.out.println("    {db} LOGIN SUCCESS: Username " + username);
+                System.out.println("    {db} login success: username " + username);
                 return ResponseBuilder.buildLoginSuccessMessage("Logged in");
             } else {
-                System.out.println("    {db} LOGIN FAILED: Wrong username or password");
+                System.out.println("    {db} login failed: wrong username or password");
                 return ResponseBuilder.buildLoginFailedMessage("Wrong username or password");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("    {db} LOGIN FAILED: Unknown error");
+        System.out.println("    {db} login failed: unknown error");
         return ResponseBuilder.buildLoginFailedMessage("Error occurred. Please try again.");
     }
 
     public static JSONObject addFriend(String user1, String user2) {
         if (isFriend(user1, user2)) {
-            System.out.println("    {db} ADD FRIEND FAILED: " + user1 + " has already been friend of " + user2);
+            System.out.println("    {db} add_friend failed: " + user1 + " has already been friend of " + user2);
             return ResponseBuilder.buildAddFriendFailedMessage(user1 + " has already been friend of " + user2);
         } else {
             try {
@@ -171,13 +171,13 @@ public class DatabaseHelper {
 
                 stmt.close();
 
-                System.out.println("    {db} ADD FRIEND SUCCESS: " + user1 + " with " + user2);
+                System.out.println("    {db} add_friend success: " + user1 + " with " + user2);
                 return ResponseBuilder.buildAddFriendSuccessMessage(user2 + " has been added");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("    {db} ADD FRIEND FAILED: Unknown error");
+        System.out.println("    {db} add_friend failed: unknown error");
         return ResponseBuilder.buildAddFriendFailedMessage("Error occurred. Please try again.");
     }
 
@@ -190,19 +190,19 @@ public class DatabaseHelper {
             stmt.executeUpdate();
 
             stmt.close();
-            System.out.println("    {db} ADD GROUP ADMIN SUCCESS: id_group " + groupId + "; admin " + admin);
+            System.out.println("    {db} add_group_members failed: id_group " + groupId + "; admin " + admin);
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("    {db} ADD GROUP ADMIN FAILED: Unknown error");
+        System.out.println("    {db} add_group_admin failed: unknown error");
         return false;
     }
 
     public static JSONObject addGroupMembers(int groupId, String username, ArrayList<String> members) {
         if (!isAdmin(username, groupId)) {
-            System.out.println("    {db} ADD GROUP MEMBERS FAILED: " + username + " is not an admin");
-            return ResponseBuilder.buildAddGroupMembersFailedMessage("You aren't authorized to add members");
+            System.out.println("    {db} add_group_members failed: " + username + " is not an admin");
+            return ResponseBuilder.buildAddGroupMembersFailedMessage("You aren't authorized to add group member(s)");
         } else {
             try {
                 String sql = "INSERT INTO group_member (group_id, member ) VALUES (?, ?)";
@@ -212,16 +212,42 @@ public class DatabaseHelper {
                     stmt.setInt(1, groupId);
                     stmt.setString(2, member);
                     stmt.executeUpdate();
-                    System.out.println("    {db} ADD GROUP MEMBERS SUCCESS: group_id " + groupId + "; user " + member);
+                    System.out.println("    {db} add_group_members success: group_id " + groupId + "; user " + member);
                 }
                 stmt.close();
-                System.out.println("    {db} ADD GROUP MEMBERS SUCCESS: All success");
+                System.out.println("    {db} add_group_members success: all success");
                 return ResponseBuilder.buildAddGroupMembersSuccessMessage("User(s) has been added to group");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("    {db} ADD FRIEND FAILED: Unknown error");
+        System.out.println("    {db} add_group_members failed: unknown error");
+        return ResponseBuilder.buildAddGroupMembersFailedMessage("Error occurred. Please try again.");
+    }
+
+    public static JSONObject removeGroupMembers(int groupId, String username, ArrayList<String> members) {
+        if (!isAdmin(username, groupId)) {
+            System.out.println("    {db} remove_group_members failed: " + username + " is not an admin");
+            return ResponseBuilder.buildAddGroupMembersFailedMessage("You aren't authorized to delete group member(s)");
+        } else {
+            try {
+                String sql = "DELETE FROM group_member WHERE (group_id = ? AND member = ?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+
+                for(String member: members) {
+                    stmt.setInt(1, groupId);
+                    stmt.setString(2, member);
+                    stmt.executeUpdate();
+                    System.out.println("    {db} remove_group_members success: group_id " + groupId + "; user " + member);
+                }
+                stmt.close();
+                System.out.println("    {db} remove_group_members success: all success");
+                return ResponseBuilder.buildAddGroupMembersSuccessMessage("User(s) has been removed from group");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("    {db} remove_group_members failed: unknown error");
         return ResponseBuilder.buildAddGroupMembersFailedMessage("Error occurred. Please try again.");
     }
 
@@ -242,13 +268,14 @@ public class DatabaseHelper {
                 rs.close();
                 stmt.close();
 
+                addGroupAdmin(id, username);
                 addGroupMembers(id, username, new ArrayList<>(Arrays.asList(new String[] {username})));
                 addGroupMembers(id, username, members);
 
                 conn.commit();
                 conn.setAutoCommit(true);
 
-                System.out.println("    {db} CREATE GROUP SUCCESS: Group id " + id + "; group_name " + groupName);
+                System.out.println("    {db} create_group success: group_id " + id + "; group_name " + groupName);
                 return ResponseBuilder.buildCreateGroupSuccessMessage(id, "Group has been created");
             }
         } catch (SQLException e) {
@@ -261,7 +288,7 @@ public class DatabaseHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("    {db} CREATE GROUP FAILED: Unknown error");
+        System.out.println("    {db} create_group failed: unknown error");
         return ResponseBuilder.buildCreateGroupFailedMessage("Error occurred. Please try again.");
     }
 }

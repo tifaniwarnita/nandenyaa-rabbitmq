@@ -129,7 +129,15 @@ public class NandeNyaaServer {
                         members);
                 break;
             case Constants.REMOVE_GROUP_MEMBERS:
-                //TODO: remove group member
+                memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
+                members = new ArrayList<>();
+                for(Object el : memberArrJson){
+                    members.add(String.valueOf(el));
+                }
+                response = DatabaseHelper.removeGroupMembers(
+                        Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID))),
+                        String.valueOf(request.get(Constants.USERNAME)),
+                        members);
                 break;
             case Constants.EXIT_GROUP:
                 //TODO: leave group, if admin, remove role from table admin
