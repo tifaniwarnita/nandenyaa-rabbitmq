@@ -172,7 +172,7 @@ public class NandeNyaaServer {
                 response = DatabaseHelper.getFriends(username);
                 break;
             case Constants.GET_GROUPS:
-                //TODO: get groups
+                response = DatabaseHelper.getGroups(username);
                 break;
             case Constants.GET_GROUP_MEMBERS:
                 //TODO: get group members

@@ -3,6 +3,7 @@ import org.json.simple.JSONObject;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Created by Tifani on 11/1/2016.
@@ -334,5 +335,32 @@ public class DatabaseHelper {
         }
         System.out.println("    {db} get_friends failed: unknown error");
         return ResponseBuilder.buildGetFriendsFailedMessage("Error occurred. Please try again.");
+    }
+
+    public static JSONObject getGroups(String username) {
+        HashMap<Integer, String> groups = new HashMap<>();
+        try {
+            String sql = "SELECT id, group_name " +
+                    "FROM `group` " +
+                    "JOIN group_member " +
+                    "ON group_member.group_id = group.id " +
+                    "WHERE member = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                groups.put(rs.getInt(1), rs.getString(2));
+            }
+            stmt.close();
+            rs.close();
+
+            System.out.println("    {db} get_groups success: " + groups.toString());
+            return ResponseBuilder.buildGetGroupsSuccessMessage(groups, "");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("    {db} get_friends failed: unknown error");
+        return ResponseBuilder.buildGetGroupsFailedMessage("Error occurred. Please try again.");
     }
 }

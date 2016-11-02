@@ -97,24 +97,39 @@ public class NandeNyaaClient {
 //                    RequestBuilder.buildExitGroupMessage("kucing", 5)
 //                            .toJSONString());
 
+//            response = client.call(
+//                    RequestBuilder.buildGetFriendsMessage("kucing")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+//
+//            response = client.call(
+//                    RequestBuilder.buildGetFriendsMessage("tifani")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+//
+//            response = client.call(
+//                    RequestBuilder.buildGetFriendsMessage("acel")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+//
+//
+//            response = client.call(
+//                    RequestBuilder.buildGetFriendsMessage("sdf")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+
             response = client.call(
-                    RequestBuilder.buildGetFriendsMessage("kucing")
+                    RequestBuilder.buildGetGroupsMessage("tifani")
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
 
             response = client.call(
-                    RequestBuilder.buildGetFriendsMessage("tifani")
+                    RequestBuilder.buildGetGroupsMessage("snowball")
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
 
             response = client.call(
-                    RequestBuilder.buildGetFriendsMessage("acel")
-                            .toJSONString());
-            System.out.println(" [.] Got response " + response);
-
-
-            response = client.call(
-                    RequestBuilder.buildGetFriendsMessage("sdf")
+                    RequestBuilder.buildGetGroupsMessage("sdf")
                             .toJSONString());
             System.out.println(" [.] Got response " + response);
         } catch (Exception e) {
