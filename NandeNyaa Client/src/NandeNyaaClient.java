@@ -92,12 +92,12 @@ public class NandeNyaaClient {
 //                            .toJSONString());
 //            System.out.println(" [.] Got response " + response);
 
-//            client.loginSuccess("kucing");
-//            System.out.println("ini kucing");
-//            response = client.call(
-//                    RequestBuilder.buildGroupMessage("kucing", 2, "TES KUCING")
-//                            .toJSONString());
-//            System.out.println(" [.] Got response " + response);
+            client.loginSuccess("kucing");
+            System.out.println("ini kucing");
+            response = client.call(
+                    RequestBuilder.buildGroupMessage("kucing", 10, "TES KUCING")
+                            .toJSONString());
+            System.out.println(" [.] Got response " + response);
 
 //            client.loginSuccess("tifani");
 //            System.out.println("ini tifani");
@@ -110,16 +110,16 @@ public class NandeNyaaClient {
 //                    RequestBuilder.buildRegisterMessage("usagi", "usagi")
 //                            .toJSONString());
 //            System.out.println(" [.] Got response " + response);
-//            client.loginSuccess("usagi");
 //            response = client.call(
-//                    RequestBuilder.buildAddFriendMessage("usagi", "neko")
+//                    RequestBuilder.buildAddFriendMessage("usagi", "kucing")
 //                            .toJSONString());
 //            System.out.println(" [.] Got response " + response);
 
-            client.loginSuccess("neko");
 
+//            response = client.call(
+//                    RequestBuilder.buildLoginMessage("kucing", "meong")
+//                            .toJSONString());
 
-            while(true) {}
 
 //            System.out.println(" [x] Register username: kucing password: meong");
 //            response = client.call(
@@ -138,23 +138,25 @@ public class NandeNyaaClient {
 //            members.add("tifani");
 //            members.add("acel");
 //            response = client.call(
-//                    RequestBuilder.buildCreateGroupMessage("kucing", "Snowball Nyaw", members)
+//                    RequestBuilder.buildCreateGroupMessage("kucing", "Inocchi wa Sugoi!", members)
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+
+
+//            ArrayList members = new ArrayList();
+//            members.add("snowball");
+//            response = client.call(
+//                    RequestBuilder.buildAddGroupMembersMessage("kucing", 9, members)
 //                            .toJSONString());
 
 //            ArrayList members = new ArrayList();
 //            members.add("snowball");
 //            response = client.call(
-//                    RequestBuilder.buildAddGroupMembersMessage("kucing", 5, members)
-//                            .toJSONString());
-
-//            ArrayList members = new ArrayList();
-//            members.add("snowball");
-//            response = client.call(
-//                    RequestBuilder.buildRemoveGroupMembersMessage("kucing", 5, members)
+//                    RequestBuilder.buildRemoveGroupMembersMessage("kucing", 9, members)
 //                            .toJSONString());
 
 //            response = client.call(
-//                    RequestBuilder.buildExitGroupMessage("kucing", 5)
+//                    RequestBuilder.buildExitGroupMessage("kucing", 9)
 //                            .toJSONString());
 
 //            response = client.call(
@@ -225,9 +227,7 @@ public class NandeNyaaClient {
         activeUser = username;
         try {
             channel.queueBind(CLIENT_QUEUE_NAME, EXCHANGE_NAME, username);
-            Map<String, Object> args = new HashMap<String, Object>();
-            args.put("x-dead-letter-exchange", "some.exchange.name");
-            channel.queueDeclare(username, false, false, true, args);
+            channel.queueDeclare(username, false, false, true, null);
             channel.basicConsume(username, true, emitConsumer);
         } catch (IOException e) {
             e.printStackTrace();

@@ -31,10 +31,7 @@ public class NandeNyaaServer {
             // Non-durable (won't survive a server restart)
             // Exclusive (other channels cannot connect to the same queue)
             // Not auto-deleted once it’s no longer being used
-            Map<String, Object> args = new HashMap<String, Object>();
-            args.put("x-dead-letter-exchange", "some.exchange.name");
-            channel.queueDeclare(Constants.SERVER_QUEUERE_NAME, false, false, true, args);
-            channel.exchangeDeclare(Constants.EXCHANGE_NAME, "direct");
+            channel.queueDeclare(Constants.SERVER_QUEUERE_NAME, false, false, false, null);
 
             // Accept only one un-ack-ed message at a time
             channel.basicQos(1);
@@ -59,7 +56,7 @@ public class NandeNyaaServer {
                 try {
                     JSONObject request = (JSONObject) (new JSONParser())
                             .parse(new String(delivery.getBody(), "UTF-8"));
-
+                    System.out.println("REQ: " + request);
                     System.out.println(" [.] "
                             + String.valueOf(request.get(Constants.REQUEST_TYPE)).toUpperCase()
                             + " from "
@@ -95,6 +92,7 @@ public class NandeNyaaServer {
         ArrayList<String> members = null;
         String message = null;
         int groupId;
+        String groupExchange;
 
         String type = String.valueOf(request.get(Constants.REQUEST_TYPE));
         String username = String.valueOf(request.get(Constants.USERNAME));
@@ -113,7 +111,9 @@ public class NandeNyaaServer {
             case Constants.ADD_FRIEND:
                 String newFriend = String.valueOf(request.get(Constants.USER_TO_ADD));
                 response = DatabaseHelper.addFriend(username, newFriend);
-                forwardMessage(newFriend, request);
+                if (response.get(Constants.STATUS).equals(Constants.SUCCESS)) {
+                    forwardMessage(newFriend, request);
+                }
                 break;
             case Constants.CREATE_GROUP:
                 memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
@@ -125,6 +125,20 @@ public class NandeNyaaServer {
                         username,
                         String.valueOf(request.get(Constants.GROUP_NAME)),
                         members);
+                if (response.get(Constants.STATUS).equals(Constants.SUCCESS)) {
+                    groupExchange = Constants.EXCHANGE_NAME + "_" +String.valueOf(response.get(Constants.GROUP_ID));
+                    try {
+                        channel.exchangeDeclare(groupExchange, "fanout");
+                        channel.queueDeclare(username, false, false, true, null);
+                        channel.queueBind(username, groupExchange, "");
+                        for(Object el : memberArrJson){
+                            channel.queueDeclare((String) el, false, false, true, null);
+                            channel.queueBind((String) el, groupExchange, "");
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 break;
             case Constants.ADD_GROUP_MEMBERS:
                 groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
@@ -138,6 +152,17 @@ public class NandeNyaaServer {
                         members.add(String.valueOf(el));
                     }
                     response = DatabaseHelper.addGroupMembers(groupId, members);
+                }
+                if (response.get(Constants.STATUS).equals(Constants.SUCCESS)) {
+                    groupExchange = Constants.EXCHANGE_NAME + "_" +groupId;
+                    try {
+                        for(Object el : memberArrJson){
+                            channel.queueDeclare((String) el, false, false, true, null);
+                            channel.queueBind((String) el, groupExchange, "");
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case Constants.REMOVE_GROUP_MEMBERS:
@@ -153,6 +178,17 @@ public class NandeNyaaServer {
                     }
                     response = DatabaseHelper.removeGroupMembers(groupId, members);
                 }
+                if (response.get(Constants.STATUS).equals(Constants.SUCCESS)) {
+                    groupExchange = Constants.EXCHANGE_NAME + "_" +groupId;
+                    try {
+                        for(Object el : memberArrJson){
+                            channel.queueDeclare((String) el, false, false, true, null);
+                            channel.queueUnbind((String) el, groupExchange, "");
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 break;
             case Constants.EXIT_GROUP:
                 groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
@@ -160,6 +196,15 @@ public class NandeNyaaServer {
                 response = DatabaseHelper.removeGroupMembers(groupId, members);
                 if (response.get(Constants.STATUS).equals(Constants.SUCCESS)) {
                     response = ResponseBuilder.buildExitGroupMembersSuccessMessage("You have successfuly leave group");
+                    if (response.get(Constants.STATUS).equals(Constants.SUCCESS)) {
+                        groupExchange = Constants.EXCHANGE_NAME + "_" + groupId;
+                        try {
+                            channel.queueDeclare(username, false, false, true, null);
+                            channel.queueUnbind(username, groupExchange, "");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 } else {
                     response = ResponseBuilder.buildExitGroupMembersFailedMessage("Error occurred. Please try again.");
                 }
@@ -173,10 +218,18 @@ public class NandeNyaaServer {
             case Constants.GROUP_MESSAGE:
                 groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
                 JSONArray receivers = (JSONArray) DatabaseHelper.getGroupMembers(groupId).get(Constants.GROUP_MEMBERS);
-                for (Object rec : receivers) {
-                    System.out.println("    group_message: send to " + rec);
-                    forwardMessage((String) rec, request);
+                AMQP.BasicProperties props = new AMQP.BasicProperties
+                        .Builder()
+                        .deliveryMode(2)
+                        .priority(1)
+                        .build();
+                groupExchange = Constants.EXCHANGE_NAME + "_" + groupId;
+                try {
+                    channel.basicPublish(groupExchange, "", props, request.toJSONString().getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                System.out.println("    group_message: send to group");
                 response = ResponseBuilder.buildDeliverGroupMessageSuccessMessage("Group chat has been delivered");
                 break;
             case Constants.GET_FRIENDS:
@@ -203,9 +256,7 @@ public class NandeNyaaServer {
                 .build();
 
         try {
-            Map<String, Object> args = new HashMap<>();
-            args.put("x-dead-letter-exchange", "some.exchange.name");
-            channel.queueDeclare(receiver, false, false, true, args);
+            channel.queueDeclare(receiver, false, false, true, null);
             channel.basicPublish("", receiver, props, message.toJSONString().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
@@ -214,7 +265,5 @@ public class NandeNyaaServer {
 
     public static void main(String[] argv) {
         NandeNyaaServer server = new NandeNyaaServer();
-//        DatabaseHelper.openConnection();
-//        DatabaseHelper.login("kucing", "meong");
     }
 }
