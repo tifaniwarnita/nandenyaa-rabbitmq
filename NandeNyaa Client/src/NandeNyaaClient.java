@@ -30,7 +30,6 @@ public class NandeNyaaClient {
         connetion = factory.newConnection();
         channel = connetion.createChannel();
 
-        channel.exchangeDeclare(EXCHANGE_NAME, "direct");
         RESPONSE_QUEUE_NAME = channel.queueDeclare().getQueue();
         CLIENT_QUEUE_NAME = channel.queueDeclare().getQueue();
         System.out.println("Response queue: " + RESPONSE_QUEUE_NAME);
@@ -52,6 +51,7 @@ public class NandeNyaaClient {
     public String call(String message) throws Exception {
         String response = null;
         String corrId = UUID.randomUUID().toString();
+        System.out.println("Request: " + message);
 
         AMQP.BasicProperties props = new AMQP.BasicProperties
                 .Builder()
@@ -67,6 +67,7 @@ public class NandeNyaaClient {
             QueueingConsumer.Delivery delivery = queueConsumer.nextDelivery();
             if (delivery.getProperties().getCorrelationId().equals(corrId)) {
                 response = new String(delivery.getBody(), "UTF-8");
+                System.out.println(" [.] Got response " + response);
                 break;
             }
         }
@@ -85,6 +86,28 @@ public class NandeNyaaClient {
         try {
             client = new NandeNyaaClient();
 
+            client.loginSuccess("kucing");
+            response = client.call(
+                    RequestBuilder.buildGroupMessage("kucing", 1, "Mari bermain bersama kucing-kucing")
+                            .toJSONString());
+            client.loginSuccess("blossom");
+            client.loginSuccess("gyabo");
+            client.loginSuccess("nyanko");
+            client.loginSuccess("snowball");
+//            response = client.call(
+//                    RequestBuilder.buildPrivateMessage("tifani", "kucing", "Iya kucing lucu banget!")
+//                            .toJSONString());
+            while(true);
+//            client = new NandeNyaaClient();
+//            response = client.call(
+//                    RequestBuilder.buildPrivateMessage("kucing", "tifani", "Nyanko nyan nyan")
+//                            .toJSONString());
+//
+//            client = new NandeNyaaClient();
+//            response = client.call(
+//                    RequestBuilder.buildPrivateMessage("kucing", "tifani", "Miaw miaw")
+//                            .toJSONString());
+
 //            client.loginSuccess("acel");
 //            System.out.println("ini acel");
 //            response = client.call(
@@ -92,12 +115,12 @@ public class NandeNyaaClient {
 //                            .toJSONString());
 //            System.out.println(" [.] Got response " + response);
 
-            client.loginSuccess("kucing");
-            System.out.println("ini kucing");
-            response = client.call(
-                    RequestBuilder.buildGroupMessage("kucing", 10, "TES KUCING")
-                            .toJSONString());
-            System.out.println(" [.] Got response " + response);
+//            client.loginSuccess("kucing");
+//            System.out.println("ini kucing");
+//            response = client.call(
+//                    RequestBuilder.buildGroupMessage("kucing", 10, "TES KUCING")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
 
 //            client.loginSuccess("tifani");
 //            System.out.println("ini tifani");
@@ -107,12 +130,16 @@ public class NandeNyaaClient {
 //            System.out.println(" [.] Got response " + response);
 
 //            response = client.call(
-//                    RequestBuilder.buildRegisterMessage("usagi", "usagi")
+//                    RequestBuilder.buildRegisterMessage("blossom", "blossom")
+//                            .toJSONString());
+//            response = client.call(
+//                    RequestBuilder.buildRegisterMessage("nyanko", "nyanko")
+//                            .toJSONString());
+//            response = client.call(
+//                    RequestBuilder.buildRegisterMessage("gyabo", "gyabo")
 //                            .toJSONString());
 //            System.out.println(" [.] Got response " + response);
-//            response = client.call(
-//                    RequestBuilder.buildAddFriendMessage("usagi", "kucing")
-//                            .toJSONString());
+//cre
 //            System.out.println(" [.] Got response " + response);
 
 
@@ -138,15 +165,17 @@ public class NandeNyaaClient {
 //            members.add("tifani");
 //            members.add("acel");
 //            response = client.call(
-//                    RequestBuilder.buildCreateGroupMessage("kucing", "Inocchi wa Sugoi!", members)
+//                    RequestBuilder.buildCreateGroupMessage("kucing", "Kawaiina Nyanko", members)
 //                            .toJSONString());
-//            System.out.println(" [.] Got response " + response);
+//             System.out.println(" [.] Got response " + response);
 
-
+//
 //            ArrayList members = new ArrayList();
-//            members.add("snowball");
+//            members.add("blossom");
+//            members.add("nyanko");
+//            members.add("gyabo");
 //            response = client.call(
-//                    RequestBuilder.buildAddGroupMembersMessage("kucing", 9, members)
+//                    RequestBuilder.buildAddGroupMembersMessage("acel", 2, members)
 //                            .toJSONString());
 
 //            ArrayList members = new ArrayList();
@@ -156,7 +185,7 @@ public class NandeNyaaClient {
 //                            .toJSONString());
 
 //            response = client.call(
-//                    RequestBuilder.buildExitGroupMessage("kucing", 9)
+//                    RequestBuilder.buildExitGroupMessage("kucing", 1)
 //                            .toJSONString());
 
 //            response = client.call(

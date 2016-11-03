@@ -56,7 +56,6 @@ public class NandeNyaaServer {
                 try {
                     JSONObject request = (JSONObject) (new JSONParser())
                             .parse(new String(delivery.getBody(), "UTF-8"));
-                    System.out.println("REQ: " + request);
                     System.out.println(" [.] "
                             + String.valueOf(request.get(Constants.REQUEST_TYPE)).toUpperCase()
                             + " from "
