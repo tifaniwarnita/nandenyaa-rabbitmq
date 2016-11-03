@@ -99,12 +99,25 @@ public class NandeNyaaClient {
 //                            .toJSONString());
 //            System.out.println(" [.] Got response " + response);
 
-            client.loginSuccess("tifani");
-            System.out.println("ini tifani");
-            response = client.call(
-                    RequestBuilder.buildGroupMessage("tifani", 2, "TES TIFANI")
-                            .toJSONString());
-            System.out.println(" [.] Got response " + response);
+//            client.loginSuccess("tifani");
+//            System.out.println("ini tifani");
+//            response = client.call(
+//                    RequestBuilder.buildGroupMessage("tifani", 2, "TES TIFANI")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+
+//            response = client.call(
+//                    RequestBuilder.buildRegisterMessage("usagi", "usagi")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+//            client.loginSuccess("usagi");
+//            response = client.call(
+//                    RequestBuilder.buildAddFriendMessage("usagi", "neko")
+//                            .toJSONString());
+//            System.out.println(" [.] Got response " + response);
+
+            client.loginSuccess("neko");
+
 
             while(true) {}
 

@@ -99,12 +99,6 @@ public class NandeNyaaServer {
         String type = String.valueOf(request.get(Constants.REQUEST_TYPE));
         String username = String.valueOf(request.get(Constants.USERNAME));
 
-        AMQP.BasicProperties props = new AMQP.BasicProperties
-                .Builder()
-                .deliveryMode(2)
-                .priority(1)
-                .build();
-
         switch (type) {
             case Constants.REGISTER:
                 response = DatabaseHelper.register(
@@ -117,9 +111,9 @@ public class NandeNyaaServer {
                         String.valueOf(request.get(Constants.PASSWORD)));
                 break;
             case Constants.ADD_FRIEND:
-                response = DatabaseHelper.addFriend(
-                        username,
-                        String.valueOf(request.get(Constants.USER_TO_ADD)));
+                String newFriend = String.valueOf(request.get(Constants.USER_TO_ADD));
+                response = DatabaseHelper.addFriend(username, newFriend);
+                forwardMessage(newFriend, request);
                 break;
             case Constants.CREATE_GROUP:
                 memberArrJson = (JSONArray) request.get(Constants.MEMBERS);
@@ -172,34 +166,18 @@ public class NandeNyaaServer {
                 break;
             case Constants.PRIVATE_MESSAGE:
                 String receiver = String.valueOf(request.get(Constants.RECEIVER));
-                //TODO: send ke queue client
-                try {
-                    Map<String, Object> args = new HashMap<>();
-                    args.put("x-dead-letter-exchange", "some.exchange.name");
-                    channel.queueDeclare(receiver, false, false, true, args);
-                    channel.basicPublish("", receiver, props, request.toJSONString().getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                forwardMessage(receiver, request);
                 System.out.println("    private_message: send to " + receiver);
                 response = ResponseBuilder.buildDeliverPrivateMessageSuccessMessage("Private chat has been delivered");
                 break;
             case Constants.GROUP_MESSAGE:
                 groupId = Integer.parseInt(String.valueOf(request.get(Constants.GROUP_ID)));
                 JSONArray receivers = (JSONArray) DatabaseHelper.getGroupMembers(groupId).get(Constants.GROUP_MEMBERS);
-                try {
-                    for (Object rec : receivers) {
-                        System.out.println("    group_message: send to " + rec);
-                        Map<String, Object> args = new HashMap<>();
-                        args.put("x-dead-letter-exchange", "some.exchange.name");
-                        channel.queueDeclare((String) rec, false, false, true, args);
-                        channel.basicPublish("", (String) rec, props, request.toJSONString().getBytes());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                for (Object rec : receivers) {
+                    System.out.println("    group_message: send to " + rec);
+                    forwardMessage((String) rec, request);
                 }
                 response = ResponseBuilder.buildDeliverGroupMessageSuccessMessage("Group chat has been delivered");
-                //TODO: send ke group
                 break;
             case Constants.GET_FRIENDS:
                 response = DatabaseHelper.getFriends(username);
@@ -215,6 +193,23 @@ public class NandeNyaaServer {
         }
 
         return response;
+    }
+
+    public void forwardMessage(String receiver, JSONObject message) {
+        AMQP.BasicProperties props = new AMQP.BasicProperties
+                .Builder()
+                .deliveryMode(2)
+                .priority(1)
+                .build();
+
+        try {
+            Map<String, Object> args = new HashMap<>();
+            args.put("x-dead-letter-exchange", "some.exchange.name");
+            channel.queueDeclare(receiver, false, false, true, args);
+            channel.basicPublish("", receiver, props, message.toJSONString().getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] argv) {
